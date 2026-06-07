@@ -1,3 +1,26 @@
+```
+# MongoDB Connection
+# MONGODB_URI=mongodb+srv://Solid_Bazar:d7Wujdtd4KE0Zlfs@cluster0.hhgfvkv.mongodb.net/SolidBazaar?retryWrites=true&w=majority
+
+
+
+MONGODB_URI = mongodb+srv://Solid_Bazar:d7Wujdtd4KE0Zlfs@cluster0.hhgfvkv.mongodb.net/demosolidbazar?retryWrites=true&w=majority
+# Cloudinary Configuration
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dzzfl1epj
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=solid_bazzar
+
+# Firebase Client (Frontend)
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBubUqIEyh07nlJmmFi7wx7NcNs4dUvUnY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=solid-bazzar-d3faf.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=solid-bazzar-d3faf
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=solid-bazzar-d3faf.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=574114318217
+NEXT_PUBLIC_FIREBASE_APP_ID=1:574114318217:web:57d9ae9dc642c826cc4358
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-WW39V26PVE
+
+```
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
