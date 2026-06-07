@@ -7,7 +7,7 @@ import { SearchProvider } from "@/context/SearchContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Solid Bazzar - বিশ্বস্ত পণ্য, আপনার জন্য",
+  title: "Abdullah Poshak Ghor - বিশ্বস্ত পণ্য, আপনার জন্য",
   description: "সেরা মানের পণ্য সবচেয়ে কম দামে | ইকমার্স সাইট বাংলাদেশ",
 };
 

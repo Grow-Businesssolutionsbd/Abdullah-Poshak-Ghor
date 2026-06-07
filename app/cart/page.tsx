@@ -29,7 +29,7 @@ export default function CartPage() {
     setMounted(true);
   }, []);
 
-  const handleRemoveItem = (itemId: number, itemName: string) => {
+  const handleRemoveItem = (itemId: number | string, itemName: string) => {
     Swal.fire({
       title: "Remove Item?",
       text: `Are you sure you want to remove "${itemName}" from your cart?`,
@@ -141,9 +141,11 @@ export default function CartPage() {
 
         <div className="grid md:grid-cols-3 gap-4 md:gap-6">
           <div className="md:col-span-2 space-y-3 md:space-y-4">
-            {cart.map((item) => (
+            {cart.map((item) => {
+              const productId = (item._id ?? item.id) as string | number;
+              return (
               <div
-                key={item.id}
+                key={productId}
                 className="bg-white rounded-lg shadow-sm p-3 md:p-4 flex gap-3 md:gap-4 transition hover:shadow-md"
               >
 
@@ -199,7 +201,7 @@ export default function CartPage() {
                       <select
                         value={item.quantity}
                         onChange={(e) =>
-                          updateQuantity(item.id, parseInt(e.target.value))
+                          updateQuantity(productId, parseInt(e.target.value))
                         }
                         className="border text-gray-500 border-gray-300 rounded-md px-1.5 py-1 md:px-2 md:py-1 text-xs md:text-sm focus:outline-none focus:border-primary-gold"
                       >
@@ -211,7 +213,7 @@ export default function CartPage() {
                       </select>
 
                       <button
-                        onClick={() => handleRemoveItem(item.id, item.name)}
+                        onClick={() => handleRemoveItem(productId, item.name)}
                         className="text-red-500 hover:text-red-700 transition p-1"
                         aria-label="Remove item"
                       >
@@ -227,7 +229,8 @@ export default function CartPage() {
                   </p>
                 </div>
               </div>
-            ))}
+            );
+            })}
 
             {/* Clear Cart Button */}
             <div className="text-right">

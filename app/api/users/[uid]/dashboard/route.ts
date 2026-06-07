@@ -1,10 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 interface RouteParams {
   params: {
-    id: string;
     uid: string;
   };
 }
@@ -42,10 +41,11 @@ interface DashboardStats {
 }
 
 // GET - ইউজারের ড্যাশবোর্ড ডাটা
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const { id, uid } = params;
-    const userId = id || uid;
+    const params = await (context?.params ?? {});
+    const { uid } = params || {};
+    const userId = uid;
 
     if (!userId) {
       return NextResponse.json(
@@ -125,10 +125,11 @@ export async function GET(request: Request, { params }: RouteParams) {
 }
 
 // PUT - ইউজারের ড্যাশবোর্ড আপডেট (প্রোফাইল)
-export async function PUT(request: Request, { params }: RouteParams) {
+export async function PUT(request: NextRequest, context: any) {
   try {
-    const { id, uid } = params;
-    const userId = id || uid;
+    const params = await (context?.params ?? {});
+    const { uid } = params || {};
+    const userId = uid;
     const body = await request.json();
     const { name, email, phone, address, photoURL } = body;
 
@@ -178,10 +179,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
         message: "Profile updated successfully",
         user: updatedUser
           ? {
-              ...updatedUser,
-              _id: updatedUser._id.toString(),
-              id: updatedUser._id.toString(),
-            }
+            ...updatedUser,
+            _id: updatedUser._id.toString(),
+            id: updatedUser._id.toString(),
+          }
           : null,
       },
       { status: 200 },

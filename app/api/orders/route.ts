@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const client = await clientPromise;
     const db = client.db("demosolidbazar");
-    
+
     const newOrder = {
       orderId: body.orderId || `ORD-${Date.now()}`,
       cartItems: body.cartItems || [],
@@ -28,7 +28,7 @@ export async function POST(request) {
   }
 }
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -36,7 +36,7 @@ export async function GET(request) {
     const client = await clientPromise;
     const db = client.db("demosolidbazar");
 
-    let query = {};
+    let query: Record<string, unknown> = {};
     if (status && status !== "all") {
       query.orderStatus = status;
     }

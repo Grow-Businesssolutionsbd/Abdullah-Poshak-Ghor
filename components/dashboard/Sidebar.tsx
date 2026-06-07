@@ -83,18 +83,21 @@ export default function Sidebar() {
           >
             <div className="p-2 bg-linear-to-br from-amber-500 to-yellow-500 rounded-full transition-transform group-hover:scale-105">
               <Image
-                src="/logo.png"
-                alt="Logo"
-                width={30}
-                height={30}
-                className="rounded-full"
+                src="/images/logo.webp"
+                alt="Solid Bazzar"
+                width={40}
+                height={40}
+                className="rounded-full object-contain"
+                priority
               />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-800 transition-colors group-hover:text-amber-600">
-                SolidBazaar
+              <h2 className="text-base md:text-lg font-black text-gray-900 leading-none tracking-tight">
+                Abdullah Poshak Ghor
               </h2>
-              <p className="text-xs text-gray-500">Dashboard</p>
+              <p className="text-[9px] text-gray-400 font-medium tracking-widest uppercase leading-none mt-0.5">
+                Dashboard
+              </p>
             </div>
           </Link>
         </div>

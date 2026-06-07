@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-export async function GET(request) {
+export async function GET(request: Request) {
   try {
     // URL থেকে কুয়েরি প্যারামিটারগুলো নেওয়া
     const { searchParams } = new URL(request.url);

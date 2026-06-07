@@ -95,8 +95,9 @@ export default function ProductDetailsPage() {
         const res = await fetch("/api/products");
         if (res.ok) {
           const data = await res.json();
+          const numericId = Number(productId);
           const foundProduct = data.find((p: Product) => 
-            p._id === productId || p.id === productId || p.id === Number(productId)
+            p._id === productId || (p.id !== undefined && p.id === numericId)
           );
           
           if (foundProduct) {
@@ -107,8 +108,7 @@ export default function ProductDetailsPage() {
             const related = data.filter((p: Product) => 
               p.category === foundProduct.category && 
               p._id !== productId && 
-              p.id !== productId && 
-              p.id !== Number(productId)
+              !(p.id !== undefined && p.id === numericId)
             ).slice(0, 4);
             setRelatedProducts(related);
             
@@ -119,7 +119,10 @@ export default function ProductDetailsPage() {
             localStorage.setItem("recentlyViewed", JSON.stringify(recent));
             
             const recentProducts = recent
-              .map(id => data.find((p: Product) => p._id === id || p.id === id || p.id === Number(id)))
+              .map(id => {
+                const nId = Number(id);
+                return data.find((p: Product) => p._id === id || (p.id !== undefined && p.id === nId));
+              })
               .filter(Boolean) as Product[];
             setRecentlyViewed(recentProducts);
           }
@@ -146,7 +149,8 @@ export default function ProductDetailsPage() {
       // Ensure we're using the correct ID format
       const productToAdd = {
         ...product,
-        id: product._id || product.id, // Use _id if available, fallback to id
+        // keep numeric id if present; don't assign string _id to numeric id
+        id: product.id ?? undefined,
       };
       
       // Add product with quantity
@@ -163,7 +167,7 @@ export default function ProductDetailsPage() {
       // Ensure we're using the correct ID format
       const productToAdd = {
         ...product,
-        id: product._id || product.id,
+        id: product.id ?? undefined,
       };
       
       // Add product with quantity

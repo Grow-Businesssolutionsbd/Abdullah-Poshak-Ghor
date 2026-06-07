@@ -223,7 +223,7 @@ export default function DashboardPage() {
 }
 
 // Helper Components
-function StatCard({ icon, label, value, change, color }) {
+function StatCard({ icon, label, value, change, color }: { icon: React.ReactNode; label: string; value: string; change: string; color: 'amber' | 'blue' | 'green' | 'purple'; }) {
   const colorClasses = {
     amber: "bg-amber-100 text-amber-600",
     blue: "bg-blue-100 text-blue-600",
@@ -249,7 +249,7 @@ function StatCard({ icon, label, value, change, color }) {
   );
 }
 
-function OrderRow({ id, customer, amount, status, date }) {
+function OrderRow({ id, customer, amount, status, date }: { id: string; customer: string; amount: string; status: 'Completed' | 'Pending' | 'Processing'; date: string; }) {
   const statusColors = {
     Completed: "bg-green-100 text-green-600",
     Pending: "bg-yellow-100 text-yellow-600",
@@ -273,7 +273,7 @@ function OrderRow({ id, customer, amount, status, date }) {
   );
 }
 
-function ActivityItem({ icon, text, time, color }) {
+function ActivityItem({ icon, text, time, color }: { icon: React.ReactNode; text: string; time: string; color: 'blue' | 'green' | 'red' | 'yellow' | 'purple'; }) {
   const colorClasses = {
     blue: "bg-blue-100 text-blue-600",
     green: "bg-green-100 text-green-600",
@@ -293,8 +293,8 @@ function ActivityItem({ icon, text, time, color }) {
   );
 }
 
-function QuickAction({ title, description, icon, color }) {
-  const colorClasses = {
+function QuickAction({ title, description, icon, color }: { title: string; description: string; icon: React.ReactNode; color: 'amber' | 'blue' | 'green'; }) {
+  const colorClasses: Record<'amber' | 'blue' | 'green', string> = {
     amber: "bg-amber-500 hover:bg-amber-600",
     blue: "bg-blue-500 hover:bg-blue-600",
     green: "bg-green-500 hover:bg-green-600",

@@ -53,10 +53,10 @@ const reviews = [
 
 // ─── Helper ─────────────────────────────────────────────────────────────────────
 
-const getInitials = (name) =>
+const getInitials = (name: string) =>
   name
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
@@ -80,7 +80,6 @@ export default function Reviews() {
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-100/50 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-
         {/* ── Section Header ── */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-4 py-1.5 rounded-full mb-4">
@@ -101,10 +100,16 @@ export default function Reviews() {
           {/* Summary stats */}
           <div className="flex items-center justify-center gap-1.5 mt-4">
             {[1, 2, 3, 4, 5].map((s) => (
-              <FiStar key={s} className="text-amber-400 fill-amber-400" size={18} />
+              <FiStar
+                key={s}
+                className="text-amber-400 fill-amber-400"
+                size={18}
+              />
             ))}
             <span className="ml-2 font-bold text-gray-800">5.0</span>
-            <span className="text-gray-400 text-sm">· {reviews.length * 40}+ reviews</span>
+            <span className="text-gray-400 text-sm">
+              · {reviews.length * 40}+ reviews
+            </span>
           </div>
         </div>
 
@@ -175,7 +180,14 @@ export default function Reviews() {
                             viewBox="0 0 10 10"
                             className="w-2.5 h-2.5 fill-white"
                           >
-                            <path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            <path
+                              d="M2 5l2 2 4-4"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         </span>
                       )}

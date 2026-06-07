@@ -39,10 +39,10 @@ const STATUS_OPTIONS = [
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState("all");
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -76,7 +76,7 @@ export default function OrdersPage() {
   };
 
   // Update order status
-  const updateOrderStatus = async (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
     if (!orderId) {
       console.error("Order ID is missing!");
       alert("Error: Order ID not found");
@@ -101,15 +101,18 @@ export default function OrdersPage() {
       alert("Order status updated!");
       fetchOrders();
       setShowStatusModal(false);
-    } catch (err) {
-      alert(err.message);
+    } catch (err: unknown) {
+      const msg = (err && typeof err === 'object' && 'message' in err)
+        ? (err as any).message
+        : String(err);
+      alert(msg);
     } finally {
       setUpdatingStatus(false);
     }
   };
 
   // Delete order
-  const deleteOrder = async (orderId) => {
+  const deleteOrder = async (orderId: string) => {
     try {
       setDeleting(true);
       const response = await fetch(`/api/orders/${orderId}`, {
@@ -133,26 +136,26 @@ export default function OrdersPage() {
   };
 
   // View order details
-  const viewOrderDetails = (order) => {
+  const viewOrderDetails = (order: any) => {
     setSelectedOrder(order);
     setShowDetails(true);
   };
 
-  const getStatusInfo = (status) => {
+  const getStatusInfo = (status?: string) => {
     const statusInfo = STATUS_OPTIONS.find(s => s.value === status?.toLowerCase());
     return statusInfo || STATUS_OPTIONS[0];
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status?: string) => {
     return getStatusInfo(status).color;
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status?: string) => {
     const Icon = getStatusInfo(status).icon;
     return <Icon />;
   };
 
-  const formatDate = (date) => {
+  const formatDate = (date?: string | Date) => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -163,7 +166,7 @@ export default function OrdersPage() {
     });
   };
 
-  const formatAmount = (amount) => {
+  const formatAmount = (amount?: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "BDT",
@@ -171,7 +174,7 @@ export default function OrdersPage() {
     }).format(amount || 0);
   };
 
-  const getCustomerName = (order) => {
+  const getCustomerName = (order: any) => {
     return order.formData?.name || 
            order.customer || 
            order.formData?.fullName || 
@@ -179,7 +182,7 @@ export default function OrdersPage() {
   };
 
   // Get available statuses for the order (excluding current)
-  const getAvailableStatuses = (currentStatus) => {
+  const getAvailableStatuses = (currentStatus?: string) => {
     return STATUS_OPTIONS.filter(s => s.value !== currentStatus?.toLowerCase());
   };
 
@@ -476,7 +479,7 @@ export default function OrdersPage() {
                       Ordered Items ({selectedOrder.cartItems.length})
                     </h3>
                     <div className="space-y-2">
-                      {selectedOrder.cartItems.map((item, index) => (
+                      {selectedOrder.cartItems.map((item: any, index: number) => (
                         <div key={index} className="flex justify-between items-center p-2 bg-white rounded-lg border border-gray-100">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center">

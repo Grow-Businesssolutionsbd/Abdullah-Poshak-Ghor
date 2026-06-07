@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
 interface RouteParams {
@@ -18,9 +18,10 @@ interface UpdateData {
 }
 
 // GET - নির্দিষ্ট ইউজার পাওয়া
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const { uid } = params;
+    const params = await (context?.params ?? {});
+    const { uid } = params || {};
 
     if (!uid) {
       return NextResponse.json(
@@ -62,9 +63,10 @@ export async function GET(request: Request, { params }: RouteParams) {
 }
 
 // PUT - নির্দিষ্ট ইউজার আপডেট করুন
-export async function PUT(request: Request, { params }: RouteParams) {
+export async function PUT(request: NextRequest, context: any) {
   try {
-    const { uid } = params;
+    const params = await (context?.params ?? {});
+    const { uid } = params || {};
     const body = await request.json();
     const { role, status, name, email, mobile, photoURL } = body;
 
@@ -105,10 +107,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const updatedUser = await db.collection("users").findOne({ uid });
     const formattedUser = updatedUser
       ? {
-          ...updatedUser,
-          _id: updatedUser._id.toString(),
-          id: updatedUser._id.toString(),
-        }
+        ...updatedUser,
+        _id: updatedUser._id.toString(),
+        id: updatedUser._id.toString(),
+      }
       : null;
 
     return NextResponse.json(
@@ -129,9 +131,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
 }
 
 // DELETE - নির্দিষ্ট ইউজার ডিলিট করুন
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { uid } = params;
+    const params = await (context?.params ?? {});
+    const { uid } = params || {};
 
     if (!uid) {
       return NextResponse.json(

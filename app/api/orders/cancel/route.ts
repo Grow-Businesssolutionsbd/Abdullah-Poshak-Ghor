@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { orderId, userId } = body;

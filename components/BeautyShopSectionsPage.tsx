@@ -20,12 +20,17 @@ import { Product } from "@/types";
 
 // ─── Countdown Hook ─────────────────────────────────────────────────────────────
 
-function useCountdown(targetDate) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+function useCountdown(targetDate: string | Date) {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     const calc = () => {
-      const diff = new Date(targetDate) - new Date();
+      const diff = Number(new Date(targetDate)) - Date.now();
       if (diff <= 0) return;
       setTimeLeft({
         days: Math.floor(diff / 86400000),
@@ -40,7 +45,7 @@ function useCountdown(targetDate) {
   }, [targetDate]);
 
   return timeLeft;
-};
+}
 
 // ─── Shared Helpers ────────────────────────────────────────────────────────────
 
@@ -57,25 +62,48 @@ const categoryColors = [
   "from-amber-600 to-yellow-500",
 ];
 
-const getDefaultImageForCategory = (category) => {
-  const map = {
-    Electronics: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=400&auto=format&fit=crop",
-    Fashion: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop",
-    "Home & Living": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=400&auto=format&fit=crop",
-    Beauty: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=400&auto=format&fit=crop",
-    Sports: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop",
-    "Toys & Kids": "https://images.unsplash.com/photo-1558060370-d644479a6d0b?q=80&w=400&auto=format&fit=crop",
-    Accessories: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop",
-    Grocery: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop",
-    Footwear: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=crop",
-    Watches: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=400&auto=format&fit=crop",
+const getDefaultImageForCategory = (category: string) => {
+  const map: Record<string, string> = {
+    Electronics:
+      "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=400&auto=format&fit=crop",
+    Fashion:
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop",
+    "Home & Living":
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=400&auto=format&fit=crop",
+    Beauty:
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=400&auto=format&fit=crop",
+    Sports:
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop",
+    "Toys & Kids":
+      "https://images.unsplash.com/photo-1558060370-d644479a6d0b?q=80&w=400&auto=format&fit=crop",
+    Accessories:
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop",
+    Grocery:
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop",
+    Footwear:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=crop",
+    Watches:
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=400&auto=format&fit=crop",
   };
-  return map[category] || "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=400&auto=format&fit=crop";
+  return (
+    map[category] ||
+    "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=400&auto=format&fit=crop"
+  );
 };
 
 // ─── Section Header ─────────────────────────────────────────────────────────────
 
-function SectionHeader({ icon, title, accent, onViewAll }) {
+function SectionHeader({
+  icon,
+  title,
+  accent,
+  onViewAll,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  accent?: string;
+  onViewAll?: () => void;
+}) {
   return (
     <div className="flex items-end justify-between mb-7 pb-4 border-b border-gray-100">
       <div>
@@ -100,7 +128,10 @@ function SectionHeader({ icon, title, accent, onViewAll }) {
         className="group flex items-center gap-1 text-orange-500 hover:text-white font-bold text-xs md:text-sm bg-orange-50 hover:bg-orange-500 border border-orange-100 hover:border-transparent px-4 py-2 rounded-full transition-all duration-200 shadow-sm"
       >
         View All
-        <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight
+          size={14}
+          className="group-hover:translate-x-0.5 transition-transform"
+        />
       </button>
     </div>
   );
@@ -108,7 +139,21 @@ function SectionHeader({ icon, title, accent, onViewAll }) {
 
 // ─── Featured Category Section (with left image card like reference) ────────────
 
-function CategorySection({ title, icon, accent, products, onViewAll, bgColor = "white" }) {
+function CategorySection({
+  title,
+  icon,
+  accent,
+  products,
+  onViewAll,
+  bgColor = "white",
+}: {
+  title: string;
+  icon: React.ReactNode;
+  accent?: string;
+  products: any[];
+  onViewAll: () => void;
+  bgColor?: string;
+}) {
   const featuredProduct = products[0];
   const gridProducts = products.slice(1, 5);
 
@@ -121,7 +166,12 @@ function CategorySection({ title, icon, accent, products, onViewAll, bgColor = "
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader icon={icon} title={title} accent={accent} onViewAll={onViewAll} />
+        <SectionHeader
+          icon={icon}
+          title={title}
+          accent={accent}
+          onViewAll={onViewAll}
+        />
 
         {products.length === 0 ? (
           <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-sm">
@@ -152,7 +202,9 @@ function CategorySection({ title, icon, accent, products, onViewAll, bgColor = "
                   <h3 className="text-white font-bold text-sm leading-snug line-clamp-2 mb-2">
                     {title} Collection
                   </h3>
-                  <p className="text-white/70 text-xs mb-3">All of our modern collection</p>
+                  <p className="text-white/70 text-xs mb-3">
+                    All of our modern collection
+                  </p>
                   <button className="flex items-center gap-1.5 text-white text-xs font-semibold bg-white/20 hover:bg-orange-500 backdrop-blur-sm px-3 py-1.5 rounded-full transition-all duration-200">
                     Shop Collection
                     <ArrowRight size={12} />
@@ -178,7 +230,7 @@ function CategorySection({ title, icon, accent, products, onViewAll, bgColor = "
 
 // ─── Countdown Block ────────────────────────────────────────────────────────────
 
-function CountdownBlock({ targetDate }) {
+function CountdownBlock({ targetDate }: { targetDate: string | Date }) {
   const { days, hours, minutes, seconds } = useCountdown(targetDate);
 
   return (
@@ -196,10 +248,14 @@ function CountdownBlock({ targetDate }) {
                 {String(val).padStart(2, "0")}
               </span>
             </div>
-            <span className="text-[10px] text-gray-500 font-semibold mt-1 block">{label}</span>
+            <span className="text-[10px] text-gray-500 font-semibold mt-1 block">
+              {label}
+            </span>
           </div>
           {i < 3 && (
-            <span className="text-orange-500 font-black text-lg md:text-xl mb-4">:</span>
+            <span className="text-orange-500 font-black text-lg md:text-xl mb-4">
+              :
+            </span>
           )}
         </div>
       ))}
@@ -211,9 +267,11 @@ function CountdownBlock({ targetDate }) {
 
 export default function BeautyShopSectionsPage() {
   const router = useRouter();
-  const [dbProducts, setDbProducts] = useState([]);
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dynamicCategories, setDynamicCategories] = useState([]);
+  const [dynamicCategories, setDynamicCategories] = useState<
+    Array<{ name: string; count: number; image: string; color?: string }>
+  >([]);
 
   // Deal ends 4 months from now
   const dealEndDate = useMemo(() => {
@@ -222,7 +280,7 @@ export default function BeautyShopSectionsPage() {
     return d.toISOString();
   }, []);
 
-  const generateCategories = (products) => {
+  const generateCategories = (products: Product[]) => {
     const map = new Map();
     products.forEach((p) => {
       const name = p.category || "Uncategorized";
@@ -241,7 +299,7 @@ export default function BeautyShopSectionsPage() {
       Array.from(map.values()).map((c, i) => ({
         ...c,
         color: categoryColors[i % categoryColors.length],
-      }))
+      })),
     );
   };
 
@@ -251,7 +309,10 @@ export default function BeautyShopSectionsPage() {
         const res = await fetch("/api/products");
         if (res.ok) {
           const data = await res.json();
-          const active = data.filter((p) => p.status === "Active");
+          const productsData = data as Product[];
+          const active = productsData.filter(
+            (p: Product) => p.status === "Active",
+          );
           setDbProducts(active);
           generateCategories(active);
         }
@@ -266,32 +327,50 @@ export default function BeautyShopSectionsPage() {
 
   const trendingProducts = useMemo(
     () => dbProducts.filter((p) => (p.rating ?? 5) >= 4.2).slice(0, 8),
-    [dbProducts]
+    [dbProducts],
   );
   const specialDeals = useMemo(
     () => dbProducts.filter((p) => p.discount && p.discount > 10).slice(0, 8),
-    [dbProducts]
+    [dbProducts],
   );
-  const newProducts = useMemo(() => [...dbProducts].reverse().slice(0, 8), [dbProducts]);
+  const newProducts = useMemo(
+    () => [...dbProducts].reverse().slice(0, 8),
+    [dbProducts],
+  );
   const bestSellers = useMemo(
     () => dbProducts.filter((p) => p.stock && p.stock < 100).slice(0, 8),
-    [dbProducts]
+    [dbProducts],
   );
 
   const goToShop = () => router.push("/shop");
 
   return (
     <div className="min-h-screen bg-gray-50/50 text-gray-900 antialiased">
-
       {/* ── Trust Bar ─────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px divide-x divide-gray-100">
             {[
-              { icon: Truck, title: "Cash on Delivery", desc: "Pay at your doorstep" },
-              { icon: Shield, title: "100% Original", desc: "Guaranteed authentic" },
-              { icon: RefreshCw, title: "Easy Returns", desc: "7-day hassle-free" },
-              { icon: CreditCard, title: "Secure Payment", desc: "Encrypted checkout" },
+              {
+                icon: Truck,
+                title: "Cash on Delivery",
+                desc: "Pay at your doorstep",
+              },
+              {
+                icon: Shield,
+                title: "100% Original",
+                desc: "Guaranteed authentic",
+              },
+              {
+                icon: RefreshCw,
+                title: "Easy Returns",
+                desc: "7-day hassle-free",
+              },
+              {
+                icon: CreditCard,
+                title: "Secure Payment",
+                desc: "Encrypted checkout",
+              },
             ].map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={i}
@@ -332,7 +411,9 @@ export default function BeautyShopSectionsPage() {
                 <button
                   key={index}
                   onClick={() =>
-                    router.push(`/shop?category=${encodeURIComponent(cat.name)}`)
+                    router.push(
+                      `/shop?category=${encodeURIComponent(cat.name)}`,
+                    )
                   }
                   className="group flex flex-col items-center gap-2.5 p-3 md:p-4 bg-white border border-gray-100 rounded-2xl hover:border-orange-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                 >
@@ -450,7 +531,9 @@ export default function BeautyShopSectionsPage() {
           {bestSellers.length > 0 && (
             <CategorySection
               title="Best Sellers"
-              icon={<Star size={18} className="fill-amber-500 text-amber-500" />}
+              icon={
+                <Star size={18} className="fill-amber-500 text-amber-500" />
+              }
               products={bestSellers}
               bgColor="gradient"
               onViewAll={goToShop}
@@ -479,7 +562,8 @@ export default function BeautyShopSectionsPage() {
             </span>
           </h2>
           <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto mb-10">
-            Premium quality, unbeatable prices, and lightning-fast delivery — all in one place.
+            Premium quality, unbeatable prices, and lightning-fast delivery —
+            all in one place.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -496,7 +580,9 @@ export default function BeautyShopSectionsPage() {
                 <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-b from-orange-400 to-amber-300 bg-clip-text text-transparent">
                   {s.num}
                 </div>
-                <div className="text-xs text-gray-400 mt-1 font-medium">{s.label}</div>
+                <div className="text-xs text-gray-400 mt-1 font-medium">
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
