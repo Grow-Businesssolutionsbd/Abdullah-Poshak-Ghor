@@ -16,7 +16,7 @@ export async function PUT(request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // অর্ডার স্ট্যাটাস আপডেট করুন
     const result = await db.collection("orders").updateOne(

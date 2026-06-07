@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     const role = searchParams.get("role");
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // ✅ 'any' সরানো হয়েছে
     const query: QueryParams = {};
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // Check if user already exists
     const existingUser = await db.collection("users").findOne({ uid });
@@ -191,7 +191,7 @@ export async function PUT(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // ✅ 'any' সরানো হয়েছে - টাইপ ডিফাইন করা হয়েছে
     const updateFields: UpdateFields = { updatedAt: new Date() };
@@ -249,7 +249,7 @@ export async function DELETE(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     const result = await db.collection("users").deleteOne({ uid });
 

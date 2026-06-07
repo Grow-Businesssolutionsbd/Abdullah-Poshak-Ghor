@@ -16,7 +16,7 @@ export async function GET(request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // ডাটাবেজে Order ID এবং Phone Number দিয়ে সার্চ করা
     // আপনার Schema অনুযায়ী formData.phone চেক করা হচ্ছে

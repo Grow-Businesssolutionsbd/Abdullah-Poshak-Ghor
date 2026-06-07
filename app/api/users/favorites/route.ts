@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     const user = await db.collection("users").findOne({ uid: userId });
     const favoriteIds = user?.favorites || [];
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     await db
       .collection("users")
@@ -74,7 +74,7 @@ export async function DELETE(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     await db
       .collection("users")

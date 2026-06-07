@@ -1,446 +1,504 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ShoppingBag,
-  ChevronRight,
-  CreditCard,
-  Truck,
-  Shield,
-  RefreshCw,
   Zap,
   Gift,
   Sparkles,
   Star,
+  ChevronRight,
+  Truck,
+  Shield,
+  RefreshCw,
+  CreditCard,
   ArrowRight,
-  Globe,
 } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faWhatsapp } from "@fortawesome/free-brands-svg-icons";
-
-import { Product } from "@/types";
-import ProductCard from "@/components/ProductCard";
 import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
+import { Product } from "@/types";
 
-// ===== Section Component =====
-const Section = ({
-  title,
-  icon,
-  products: sectionProducts,
-  bgColor = "white",
-  onViewAll,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  products: Product[];
-  bgColor?: "white" | "gradient";
-  onViewAll: () => void;
-}) => (
-  <section
-    className={`py-12 md:py-20 transition-all duration-300 ${
-      bgColor === "gradient"
-        ? "bg-gradient-to-br from-indigo-50/50 via-white to-orange-50/50"
-        : "bg-white"
-    }`}
-  >
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-row justify-between items-end mb-8 md:mb-12 border-b border-gray-100 pb-4">
-        <div>
-          <div className="flex items-center gap-2.5 md:gap-3 mb-2">
-            <div className="p-2 bg-orange-50 rounded-xl text-orange-600 shadow-xs ring-1 ring-orange-100">
-              {icon}
-            </div>
-            <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-slate-800">
-              {title}
-            </h2>
-          </div>
-        </div>
-        <button
-          onClick={onViewAll}
-          className="group flex items-center gap-1.5 text-orange-600 hover:text-white font-bold transition-all bg-orange-50 hover:bg-orange-600 px-4 py-2 rounded-full text-xs md:text-sm shadow-xs hover:shadow-md"
-        >
-          View All
-          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-        </button>
-      </div>
+// ─── Countdown Hook ─────────────────────────────────────────────────────────────
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {sectionProducts.length > 0 ? (
-          sectionProducts.slice(0, 4).map((product) => (
-            <div key={product._id || product.id} className="h-full">
-              <ProductCard product={product} />
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-12 text-slate-400 text-sm bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            No products available right now.
-          </div>
-        )}
-      </div>
-    </div>
-  </section>
-);
+function useCountdown(targetDate) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-// ক্যাটাগরির জন্য কালার জেনারেটর
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(targetDate) - new Date();
+      if (diff <= 0) return;
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    calc();
+    const id = setInterval(calc, 1000);
+    return () => clearInterval(id);
+  }, [targetDate]);
+
+  return timeLeft;
+};
+
+// ─── Shared Helpers ────────────────────────────────────────────────────────────
+
 const categoryColors = [
-  "from-blue-500 to-indigo-600",
-  "from-purple-500 to-pink-600",
-  "from-emerald-500 to-teal-600",
-  "from-pink-500 to-rose-600",
-  "from-orange-500 to-red-600",
-  "from-amber-500 to-yellow-600",
-  "from-cyan-500 to-blue-600",
-  "from-lime-500 to-green-600",
-  "from-violet-500 to-purple-600",
-  "from-rose-500 to-pink-600",
+  "from-orange-400 to-amber-500",
+  "from-amber-400 to-yellow-500",
+  "from-rose-400 to-orange-500",
+  "from-yellow-400 to-orange-400",
+  "from-orange-500 to-red-500",
+  "from-amber-500 to-orange-400",
+  "from-yellow-500 to-amber-400",
+  "from-orange-300 to-amber-400",
+  "from-red-400 to-orange-500",
+  "from-amber-600 to-yellow-500",
 ];
 
-export default function MegaEcommercePage() {
-  const router = useRouter();
-  const [dbProducts, setDbProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dynamicCategories, setDynamicCategories] = useState<
-    Array<{ name: string; count: number; image: string; color: string }>
-  >([]);
-
-  // ডিফল্ট ইমেজ ফাংশন (প্রথমে ডিক্লেয়ার করুন)
-  const getDefaultImageForCategory = (category: string) => {
-    const defaultImages: Record<string, string> = {
-      Electronics:
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=400&auto=format&fit=crop",
-      Fashion:
-        "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop",
-      "Home & Living":
-        "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=400&auto=format&fit=crop",
-      Beauty:
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=400&auto=format&fit=crop",
-      Sports:
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop",
-      "Toys & Kids":
-        "https://images.unsplash.com/photo-1558060370-d644479a6d0b?q=80&w=400&auto=format&fit=crop",
-      Accessories:
-        "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop",
-      Grocery:
-        "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop",
-    };
-    return (
-      defaultImages[category] ||
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=400&auto=format&fit=crop"
-    );
+const getDefaultImageForCategory = (category) => {
+  const map = {
+    Electronics: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=400&auto=format&fit=crop",
+    Fashion: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop",
+    "Home & Living": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=400&auto=format&fit=crop",
+    Beauty: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=400&auto=format&fit=crop",
+    Sports: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop",
+    "Toys & Kids": "https://images.unsplash.com/photo-1558060370-d644479a6d0b?q=80&w=400&auto=format&fit=crop",
+    Accessories: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop",
+    Grocery: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop",
+    Footwear: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=crop",
+    Watches: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=400&auto=format&fit=crop",
   };
+  return map[category] || "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=400&auto=format&fit=crop";
+};
 
-  // প্রোডাক্ট থেকে ইউনিক ক্যাটাগরি বের করা (এখন আগে ডিক্লেয়ার করা হয়েছে)
-  const generateCategories = (products: Product[]) => {
-    const categoryMap = new Map<
-      string,
-      { name: string; count: number; image: string }
-    >();
+// ─── Section Header ─────────────────────────────────────────────────────────────
 
-    products.forEach((product) => {
-      const categoryName = product.category || "Uncategorized";
-      if (!categoryMap.has(categoryName)) {
-        categoryMap.set(categoryName, {
-          name: categoryName,
-          count: 0,
-          image: product.image || getDefaultImageForCategory(categoryName),
-        });
-      }
-      const existing = categoryMap.get(categoryName)!;
-      existing.count++;
-      categoryMap.set(categoryName, existing);
-    });
+function SectionHeader({ icon, title, accent, onViewAll }) {
+  return (
+    <div className="flex items-end justify-between mb-7 pb-4 border-b border-gray-100">
+      <div>
+        <div className="flex items-center gap-2.5 mb-1">
+          <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
+            {icon}
+          </div>
+          <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">
+            {title}
+            {accent && (
+              <span className="ml-2 text-sm font-semibold bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
+                {accent}
+              </span>
+            )}
+          </h2>
+        </div>
+        {/* Decorative underline */}
+        <div className="h-0.5 w-10 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full ml-11" />
+      </div>
+      <button
+        onClick={onViewAll}
+        className="group flex items-center gap-1 text-orange-500 hover:text-white font-bold text-xs md:text-sm bg-orange-50 hover:bg-orange-500 border border-orange-100 hover:border-transparent px-4 py-2 rounded-full transition-all duration-200 shadow-sm"
+      >
+        View All
+        <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+      </button>
+    </div>
+  );
+}
 
-    const categories = Array.from(categoryMap.values()).map((cat, index) => ({
-      ...cat,
-      color: categoryColors[index % categoryColors.length],
-    }));
+// ─── Featured Category Section (with left image card like reference) ────────────
 
-    setDynamicCategories(categories);
-  };
-
-  // MongoDB থেকে লাইভ প্রোডাক্ট ডেটা ফেচ করা
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const res = await fetch("/api/products");
-        if (res.ok) {
-          const data = await res.json();
-          const activeProducts = data.filter(
-            (p: Product) => p.status === "Active",
-          );
-          setDbProducts(activeProducts);
-          generateCategories(activeProducts);
-        }
-      } catch (error) {
-        console.error("Error fetching homepage products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getProducts();
-  }, []);
-
-  const trendingProducts = dbProducts
-    .filter((p) => (p.rating ?? 5) >= 4.2)
-    .slice(0, 8);
-  const specialDeals = dbProducts
-    .filter((p) => p.discount && p.discount > 10)
-    .slice(0, 8);
-  const newProducts = [...dbProducts].reverse().slice(0, 8);
-  const bestSellers = dbProducts
-    .filter((p) => p.stock && p.stock < 100)
-    .slice(0, 8);
-
-  const goToShopPage = () => router.push("/shop");
+function CategorySection({ title, icon, accent, products, onViewAll, bgColor = "white" }) {
+  const featuredProduct = products[0];
+  const gridProducts = products.slice(1, 5);
 
   return (
-    <div className="min-h-screen bg-slate-50/50 text-slate-800 antialiased">
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-950 text-white shadow-inner">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.15),transparent_45%)]" />
+    <section
+      className={`py-12 md:py-16 ${
+        bgColor === "gradient"
+          ? "bg-gradient-to-br from-amber-50/60 via-white to-orange-50/40"
+          : "bg-white"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader icon={icon} title={title} accent={accent} onViewAll={onViewAll} />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 lg:py-28">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/10 shadow-sm">
-              <span className="text-base">🚀</span>
-              <span className="text-xs md:text-sm font-semibold tracking-wide uppercase text-orange-400">
-                Mega E‑commerce – All in One Hub
-              </span>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
-              Shop Everything,{" "}
-              <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400 bg-clip-text text-transparent">
-                One Place
-              </span>
-            </h1>
-
-            <p className="text-base md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 font-normal leading-relaxed">
-              Discover top-tier Electronics, Fashion, Home Decor, Beauty
-              essentials, and Sports gear at unbeatable wholesale prices.
-            </p>
-
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-14">
-              <button
-                onClick={goToShopPage}
-                className="group w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base"
+        {products.length === 0 ? (
+          <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-sm">
+            No products available right now.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 md:gap-5">
+            {/* Left featured card */}
+            {featuredProduct && (
+              <div
+                className="relative rounded-2xl overflow-hidden cursor-pointer group bg-gradient-to-br from-gray-900 to-gray-800 min-h-[280px] lg:min-h-0"
+                onClick={() => onViewAll()}
               >
-                <ShoppingBag className="w-5 h-5" />
-                Shop Now
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+                {featuredProduct.images?.[0] || featuredProduct.image ? (
+                  <Image
+                    src={featuredProduct.images?.[0] || featuredProduct.image}
+                    alt={featuredProduct.name}
+                    fill
+                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
+                    sizes="280px"
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <span className="inline-block bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full mb-2 uppercase tracking-wide">
+                    NEW ARRIVAL
+                  </span>
+                  <h3 className="text-white font-bold text-sm leading-snug line-clamp-2 mb-2">
+                    {title} Collection
+                  </h3>
+                  <p className="text-white/70 text-xs mb-3">All of our modern collection</p>
+                  <button className="flex items-center gap-1.5 text-white text-xs font-semibold bg-white/20 hover:bg-orange-500 backdrop-blur-sm px-3 py-1.5 rounded-full transition-all duration-200">
+                    Shop Collection
+                    <ArrowRight size={12} />
+                  </button>
+                </div>
+              </div>
+            )}
 
-              <button
-                onClick={goToShopPage}
-                className="w-full sm:w-auto border border-white/20 bg-white/5 backdrop-blur-sm text-white hover:bg-white hover:text-slate-900 px-8 py-4 rounded-full font-bold transition-all text-base"
-              >
-                View Hot Offers
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-10 border-t border-white/10 max-w-3xl mx-auto">
-              {[
-                { num: "500+", label: "Premium Brands" },
-                { num: `${dbProducts.length}+`, label: "Live Items" },
-                { num: "98%", label: "Happy Customers" },
-                { num: "100+", label: "Cities Covered" },
-              ].map((stat, idx) => (
-                <div
-                  key={idx}
-                  className="text-center p-2 rounded-xl bg-white/2"
-                >
-                  <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent">
-                    {stat.num}
-                  </div>
-                  <div className="text-xs text-slate-400 mt-1 font-medium">
-                    {stat.label}
-                  </div>
+            {/* Right product grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {gridProducts.map((product) => (
+                <div key={product._id || product.id}>
+                  <ProductCard product={product} />
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        )}
+      </div>
+    </section>
+  );
+}
 
-      {/* DYNAMIC CATEGORIES SECTION */}
-      {dynamicCategories.length > 0 && (
-        <section className="py-14 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
-              Shop by Category
-            </h2>
-            <p className="text-slate-500 mt-2 text-sm md:text-base">
-              {dynamicCategories.length} different categories to explore
-            </p>
-            <div className="h-1 w-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full mt-4" />
+// ─── Countdown Block ────────────────────────────────────────────────────────────
+
+function CountdownBlock({ targetDate }) {
+  const { days, hours, minutes, seconds } = useCountdown(targetDate);
+
+  return (
+    <div className="flex items-center gap-2 md:gap-3">
+      {[
+        { val: days, label: "Days" },
+        { val: hours, label: "Hrs" },
+        { val: minutes, label: "Min" },
+        { val: seconds, label: "Sec" },
+      ].map(({ val, label }, i) => (
+        <div key={i} className="flex items-center gap-2 md:gap-3">
+          <div className="text-center">
+            <div className="w-12 md:w-14 h-12 md:h-14 bg-white rounded-xl flex items-center justify-center shadow-sm border border-orange-100">
+              <span className="text-lg md:text-2xl font-black text-gray-900 tabular-nums">
+                {String(val).padStart(2, "0")}
+              </span>
+            </div>
+            <span className="text-[10px] text-gray-500 font-semibold mt-1 block">{label}</span>
           </div>
+          {i < 3 && (
+            <span className="text-orange-500 font-black text-lg md:text-xl mb-4">:</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {dynamicCategories.slice(0, 10).map((category, index) => (
+// ─── Main Component ─────────────────────────────────────────────────────────────
+
+export default function BeautyShopSectionsPage() {
+  const router = useRouter();
+  const [dbProducts, setDbProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [dynamicCategories, setDynamicCategories] = useState([]);
+
+  // Deal ends 4 months from now
+  const dealEndDate = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 4);
+    return d.toISOString();
+  }, []);
+
+  const generateCategories = (products) => {
+    const map = new Map();
+    products.forEach((p) => {
+      const name = p.category || "Uncategorized";
+      if (!map.has(name)) {
+        map.set(name, {
+          name,
+          count: 0,
+          image: p.image || getDefaultImageForCategory(name),
+        });
+      }
+      const e = map.get(name);
+      e.count++;
+      map.set(name, e);
+    });
+    setDynamicCategories(
+      Array.from(map.values()).map((c, i) => ({
+        ...c,
+        color: categoryColors[i % categoryColors.length],
+      }))
+    );
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          const active = data.filter((p) => p.status === "Active");
+          setDbProducts(active);
+          generateCategories(active);
+        }
+      } catch (e) {
+        console.error("Error fetching products:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const trendingProducts = useMemo(
+    () => dbProducts.filter((p) => (p.rating ?? 5) >= 4.2).slice(0, 8),
+    [dbProducts]
+  );
+  const specialDeals = useMemo(
+    () => dbProducts.filter((p) => p.discount && p.discount > 10).slice(0, 8),
+    [dbProducts]
+  );
+  const newProducts = useMemo(() => [...dbProducts].reverse().slice(0, 8), [dbProducts]);
+  const bestSellers = useMemo(
+    () => dbProducts.filter((p) => p.stock && p.stock < 100).slice(0, 8),
+    [dbProducts]
+  );
+
+  const goToShop = () => router.push("/shop");
+
+  return (
+    <div className="min-h-screen bg-gray-50/50 text-gray-900 antialiased">
+
+      {/* ── Trust Bar ─────────────────────────────────────────── */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px divide-x divide-gray-100">
+            {[
+              { icon: Truck, title: "Cash on Delivery", desc: "Pay at your doorstep" },
+              { icon: Shield, title: "100% Original", desc: "Guaranteed authentic" },
+              { icon: RefreshCw, title: "Easy Returns", desc: "7-day hassle-free" },
+              { icon: CreditCard, title: "Secure Payment", desc: "Encrypted checkout" },
+            ].map(({ icon: Icon, title, desc }, i) => (
               <div
-                key={index}
-                onClick={() =>
-                  router.push(
-                    `/shop?category=${encodeURIComponent(category.name)}`,
-                  )
-                }
-                className="group relative bg-white rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border border-slate-100 shadow-sm hover:shadow-xl hover:border-orange-100"
+                key={i}
+                className="group flex items-center gap-3 px-4 py-4 hover:bg-orange-50/50 transition-colors duration-200"
               >
-                <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center overflow-hidden shadow-inner border border-slate-100 relative mb-4">
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    sizes="80px"
-                    className="object-cover rounded-full transition-transform duration-500 group-hover:scale-110"
-                    unoptimized
-                  />
+                <div className="w-9 h-9 bg-orange-50 group-hover:bg-orange-100 rounded-xl flex items-center justify-center shrink-0 transition-colors">
+                  <Icon size={16} className="text-orange-500" />
                 </div>
-                <p className="text-sm font-bold text-slate-700 text-center group-hover:text-orange-600 transition-colors line-clamp-1">
-                  {category.name}
-                </p>
-                <span className="mt-1 inline-block px-2.5 py-0.5 text-[11px] font-medium bg-slate-50 text-slate-500 rounded-full group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors">
-                  {category.count} Items
-                </span>
+                <div className="hidden sm:block">
+                  <p className="text-xs font-bold text-gray-800">{title}</p>
+                  <p className="text-[11px] text-gray-400">{desc}</p>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Shop by Category ──────────────────────────────────── */}
+      {dynamicCategories.length > 0 && (
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Shop by{" "}
+                <span className="bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
+                  Category
+                </span>
+              </h2>
+              <p className="text-sm text-gray-500 mt-1.5">
+                {dynamicCategories.length} categories to explore
+              </p>
+              <div className="h-1 w-12 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full mx-auto mt-3" />
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-4">
+              {dynamicCategories.slice(0, 8).map((cat, index) => (
+                <button
+                  key={index}
+                  onClick={() =>
+                    router.push(`/shop?category=${encodeURIComponent(cat.name)}`)
+                  }
+                  className="group flex flex-col items-center gap-2.5 p-3 md:p-4 bg-white border border-gray-100 rounded-2xl hover:border-orange-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                >
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-50 border border-gray-100 overflow-hidden relative shadow-inner">
+                    <Image
+                      src={cat.image}
+                      alt={cat.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      unoptimized
+                      sizes="64px"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[11px] md:text-xs font-bold text-gray-700 group-hover:text-orange-600 transition-colors line-clamp-1">
+                      {cat.name}
+                    </p>
+                    <span className="text-[10px] text-gray-400 group-hover:text-orange-400 transition-colors">
+                      {cat.count} items
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* DYNAMIC PRODUCT SECTIONS */}
-      {loading ? (
-        <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center gap-3">
+      {/* ── Flash Deal Banner ─────────────────────────────────── */}
+      {specialDeals.length > 0 && (
+        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 py-1">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 md:py-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap size={18} className="text-white fill-white" />
+                  <span className="text-white/90 text-xs font-semibold uppercase tracking-widest">
+                    Happy New Year Sale
+                  </span>
+                </div>
+                <h3 className="text-white text-lg md:text-2xl font-black leading-tight">
+                  Grab your favorites before they're gone!
+                </h3>
+                <p className="text-white/80 text-xs md:text-sm mt-0.5">
+                  Exclusive discounts available for a limited time only.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right hidden md:block">
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-2">
+                    Offer Ends In
+                  </p>
+                  <CountdownBlock targetDate={dealEndDate} />
+                </div>
+                <button
+                  onClick={goToShop}
+                  className="shrink-0 bg-white text-orange-600 hover:bg-orange-50 font-bold text-sm px-6 py-2.5 rounded-full shadow-md transition-all hover:-translate-y-0.5"
+                >
+                  Shop Deals
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile countdown */}
+            <div className="flex justify-center pb-4 md:hidden">
+              <CountdownBlock targetDate={dealEndDate} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Loading State ──────────────────────────────────────── */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500 font-semibold animate-pulse">
-            Loading Curated Products...
+          <p className="text-gray-500 font-medium animate-pulse text-sm">
+            Loading products...
           </p>
         </div>
-      ) : (
+      )}
+
+      {/* ── Product Sections ───────────────────────────────────── */}
+      {!loading && (
         <>
           {trendingProducts.length > 0 && (
-            <Section
+            <CategorySection
               title="Trending Now"
-              icon={<Zap className="w-5 h-5" />}
+              icon={<Zap size={18} />}
               products={trendingProducts}
-              onViewAll={goToShopPage}
+              onViewAll={goToShop}
             />
           )}
+
           {specialDeals.length > 0 && (
-            <Section
+            <CategorySection
               title="Special Deals"
-              icon={<Gift className="w-5 h-5" />}
+              icon={<Gift size={18} />}
+              accent="Up to 50% off"
               products={specialDeals}
               bgColor="gradient"
-              onViewAll={goToShopPage}
+              onViewAll={goToShop}
             />
           )}
+
           {newProducts.length > 0 && (
-            <Section
+            <CategorySection
               title="New Arrivals"
-              icon={<Sparkles className="w-5 h-5" />}
+              icon={<Sparkles size={18} />}
               products={newProducts}
-              onViewAll={goToShopPage}
+              onViewAll={goToShop}
             />
           )}
+
           {bestSellers.length > 0 && (
-            <Section
+            <CategorySection
               title="Best Sellers"
-              icon={<Star className="w-5 h-5 text-amber-500 fill-amber-500" />}
+              icon={<Star size={18} className="fill-amber-500 text-amber-500" />}
               products={bestSellers}
               bgColor="gradient"
-              onViewAll={goToShopPage}
+              onViewAll={goToShop}
             />
           )}
         </>
       )}
 
-      {/* FEATURES */}
-      <section className="py-14 md:py-20 bg-white border-t border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+      {/* ── Brand Promise Banner ───────────────────────────────── */}
+      <section className="py-14 md:py-20 bg-gray-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-amber-400 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-1.5 rounded-full mb-5">
+            <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">
+              Why Choose Us
+            </span>
+          </div>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-3 tracking-tight">
+            Bangladesh's Most Trusted{" "}
+            <span className="bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">
+              Online Store
+            </span>
+          </h2>
+          <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto mb-10">
+            Premium quality, unbeatable prices, and lightning-fast delivery — all in one place.
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              {
-                icon: Truck,
-                title: "Cash on Delivery",
-                desc: "Pay securely at your doorstep",
-              },
-              {
-                icon: Shield,
-                title: "100% Original",
-                desc: "Guaranteed authentic products",
-              },
-              {
-                icon: RefreshCw,
-                title: "Easy Return",
-                desc: "Hassle-free 7 days policy",
-              },
-              {
-                icon: CreditCard,
-                title: "Secure Payment",
-                desc: "Encrypted & multi-layered protection",
-              },
-            ].map((feature, idx) => (
+              { num: "500+", label: "Premium Brands" },
+              { num: `${dbProducts.length || "1K"}+`, label: "Live Products" },
+              { num: "98%", label: "Happy Customers" },
+              { num: "100+", label: "Cities Served" },
+            ].map((s, i) => (
               <div
-                key={idx}
-                className="group p-5 text-center transition-all duration-300"
+                key={i}
+                className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors"
               >
-                <div className="w-14 h-14 bg-slate-50 group-hover:bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 group-hover:border-orange-100 transition-all transform group-hover:scale-105">
-                  <feature.icon className="w-6 h-6 text-slate-700 group-hover:text-orange-600 transition-colors" />
+                <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-b from-orange-400 to-amber-300 bg-clip-text text-transparent">
+                  {s.num}
                 </div>
-                <h3 className="text-sm md:text-base font-bold text-slate-800 mb-1.5">
-                  {feature.title}
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {feature.desc}
-                </p>
+                <div className="text-xs text-gray-400 mt-1 font-medium">{s.label}</div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CONNECT WITH US */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-orange-50/20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-slate-800 mb-3 tracking-tight">
-            Connect With Us 🌐
-          </h2>
-          <p className="text-sm md:text-base text-slate-600 max-w-lg mx-auto">
-            Stay updated with exclusive product drops, mid-season flash sales,
-            and customer rewards.
-          </p>
-          <div className="h-1 w-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full mx-auto mt-4 mb-10" />
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <a
-              href="https://facebook.com/yourpage"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold transition-all shadow-md hover:shadow-blue-600/20 justify-center text-sm md:text-base"
-            >
-              <FontAwesomeIcon icon={faFacebook} className="w-5 h-5" />
-              <span>Facebook</span>
-            </a>
-            <a
-              href="https://wa.me/8801234567890"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-xl font-bold transition-all shadow-md hover:shadow-emerald-600/20 justify-center text-sm md:text-base"
-            >
-              <FontAwesomeIcon icon={faWhatsapp} className="w-5 h-5" />
-              <span>WhatsApp</span>
-            </a>
-            <a
-              href="https://yourwebsite.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3.5 rounded-xl font-bold transition-all shadow-md hover:shadow-slate-800/20 justify-center text-sm md:text-base"
-            >
-              <Globe className="w-5 h-5" />
-              <span>Official Site</span>
-            </a>
           </div>
         </div>
       </section>

@@ -5,7 +5,7 @@ import clientPromise from "@/lib/mongodb";
 export async function GET(request) {
   try {
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // Get total orders
     const totalOrders = await db.collection("orders").countDocuments();

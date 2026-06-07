@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     const user = await db.collection("users").findOne({ uid });
 
@@ -76,7 +76,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // ✅ 'any' সরানো হয়েছে - টাইপ ডিফাইন করা হয়েছে
     const updateData: UpdateData = {
@@ -141,7 +141,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     const result = await db.collection("users").deleteOne({ uid });
 

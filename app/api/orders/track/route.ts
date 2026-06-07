@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // অর্ডার খুঁজুন
     const order = await db.collection("orders").findOne({

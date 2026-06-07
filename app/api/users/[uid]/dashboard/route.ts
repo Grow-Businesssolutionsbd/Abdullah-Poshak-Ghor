@@ -55,7 +55,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // Get user
     const user = await db.collection("users").findOne({
@@ -140,7 +140,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // ✅ 'any' সরানো হয়েছে - proper type definition
     const updateData: UserUpdateData = {

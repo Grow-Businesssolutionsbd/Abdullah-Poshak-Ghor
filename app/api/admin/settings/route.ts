@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb";
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
     const settings = await db
       .collection("settings")
       .findOne({ key: "store_settings" });
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     await db
       .collection("settings")

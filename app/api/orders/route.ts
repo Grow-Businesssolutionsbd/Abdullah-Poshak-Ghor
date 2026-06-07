@@ -5,7 +5,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
     
     const newOrder = {
       orderId: body.orderId || `ORD-${Date.now()}`,
@@ -34,7 +34,7 @@ export async function GET(request) {
     const status = searchParams.get("status");
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     let query = {};
     if (status && status !== "all") {

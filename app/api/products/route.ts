@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
     const products = await db.collection("products").find({}).toArray();
 
     // ✅ _id কে স্ট্রিং এ কনভার্ট করুন
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     const newProduct = {
       name: body.name,
@@ -88,7 +88,7 @@ export async function PUT(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     if (updateData.price !== undefined)
       updateData.price = parseFloat(updateData.price);
@@ -126,7 +126,7 @@ export async function DELETE(request: Request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     await db.collection("products").deleteOne({ _id: new ObjectId(id) });
 

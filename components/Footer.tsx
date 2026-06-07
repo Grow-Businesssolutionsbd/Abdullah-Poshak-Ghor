@@ -11,221 +11,305 @@ import {
   FiPhone,
   FiMail,
   FiSend,
+  FiArrowRight,
+  FiHeart,
 } from "react-icons/fi";
-import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcPaypal } from "react-icons/fa";
 import { useState } from "react";
+
+// ─── Data ──────────────────────────────────────────────────────────────────────
+
+const quickLinks = [
+  { name: "Home", href: "/" },
+  { name: "Shop", href: "/shop" },
+  { name: "Contact Us", href: "/contact" },
+  { name: "Track Order", href: "/track-order" },
+  { name: "FAQ", href: "/faq" },
+];
+
+const policyLinks = [
+  { name: "Privacy Policy", href: "/privacy" },
+  { name: "Return Policy", href: "/return-policy" },
+  { name: "Terms of Service", href: "/terms" },
+  { name: "Shipping Info", href: "/shipping" },
+];
+
+const socials = [
+  {
+    icon: FiFacebook,
+    href: "https://facebook.com",
+    label: "Facebook",
+    color: "hover:bg-blue-600",
+  },
+  {
+    icon: FiInstagram,
+    href: "https://instagram.com",
+    label: "Instagram",
+    color: "hover:bg-pink-600",
+  },
+  {
+    icon: FiTwitter,
+    href: "https://twitter.com",
+    label: "Twitter",
+    color: "hover:bg-sky-500",
+  },
+  {
+    icon: FiYoutube,
+    href: "https://youtube.com",
+    label: "YouTube",
+    color: "hover:bg-red-600",
+  },
+];
+
+// ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      setEmail("");
-      setTimeout(() => setIsSubscribed(false), 3000);
-    }
+    if (!email) return;
+    setIsLoading(true);
+    await new Promise((r) => setTimeout(r, 800));
+    setIsSubscribed(true);
+    setEmail("");
+    setIsLoading(false);
+    setTimeout(() => setIsSubscribed(false), 4000);
   };
 
   return (
-    <footer className="bg-gradient-to-br from-primary-blue/5 via-white to-primary-gold/5 border-t border-gray-200 mt-auto">
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-10 md:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-          {/* Column 1 - Brand Info */}
-          <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/icon.png"
-                alt="Solid Bazzar"
-                width={40}
-                height={40}
-                className="w-8 h-8 md:w-10 md:h-10"
-              />
-              <span className="text-lg md:text-xl font-bold text-primary-gold">
-                Solid Bazzar
-              </span>
-            </Link>
-            <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
-              Your trusted beauty destination in Bangladesh. Premium quality
-              products at affordable prices.
-            </p>
-            <div className="flex gap-3">
-              <a
-                href="#"
-                className="w-8 h-8 bg-primary-gold/10 rounded-full flex items-center justify-center hover:bg-primary-gold hover:text-white transition group"
-              >
-                <FiFacebook
-                  size={16}
-                  className="text-primary-gold group-hover:text-white"
-                />
-              </a>
-              <a
-                href="#"
-                className="w-8 h-8 bg-primary-gold/10 rounded-full flex items-center justify-center hover:bg-primary-gold hover:text-white transition group"
-              >
-                <FiInstagram
-                  size={16}
-                  className="text-primary-gold group-hover:text-white"
-                />
-              </a>
-              <a
-                href="#"
-                className="w-8 h-8 bg-primary-gold/10 rounded-full flex items-center justify-center hover:bg-primary-gold hover:text-white transition group"
-              >
-                <FiTwitter
-                  size={16}
-                  className="text-primary-gold group-hover:text-white"
-                />
-              </a>
-              <a
-                href="#"
-                className="w-8 h-8 bg-primary-gold/10 rounded-full flex items-center justify-center hover:bg-primary-gold hover:text-white transition group"
-              >
-                <FiYoutube
-                  size={16}
-                  className="text-primary-gold group-hover:text-white"
-                />
-              </a>
+    <footer className="bg-gray-950 text-gray-300">
+
+      {/* ── CTA Strip ─────────────────────────────────────────── */}
+      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-white font-extrabold text-lg md:text-xl leading-tight">
+                Get the Best Deals First 🎁
+              </h3>
+              <p className="text-white/80 text-xs md:text-sm">
+                Join 10,000+ happy customers across Bangladesh
+              </p>
             </div>
-          </div>
-
-          {/* Column 2 - Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              Quick Links
-            </h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/shop"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  Shop
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/track-order"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  Track Order
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3 - Contact Info */}
-          <div className="space-y-4">
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              Contact Info
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <FiMapPin
-                  className="text-primary-gold mt-0.5 flex-shrink-0"
-                  size={16}
+            {/* Newsletter inline form */}
+            <form
+              onSubmit={handleSubscribe}
+              className="flex items-center gap-2 w-full sm:w-auto"
+            >
+              <div className="relative flex-1 sm:w-64">
+                <FiMail
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 />
-                <span className="text-xs md:text-sm text-gray-600">
-                  Jirantola, Gangni, Mollarhat, Bagerhat, Khulna-9384
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <FiPhone
-                  className="text-primary-gold flex-shrink-0"
-                  size={16}
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
-                <a
-                  href="tel:+8801797312699"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  +880 1797 312699
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <FiMail className="text-primary-gold flex-shrink-0" size={16} />
-                <a
-                  href="mailto:support@solidbazzar.com"
-                  className="text-xs md:text-sm text-gray-600 hover:text-primary-gold transition"
-                >
-                  support@solidbazzar.com
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4 - Newsletter */}
-          <div className="space-y-4">
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              Newsletter
-            </h3>
-            <p className="text-xs md:text-sm text-gray-600">
-              Subscribe to get exclusive offers and updates.
-            </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email"
-                required
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-gold"
-              />
+              </div>
               <button
                 type="submit"
-                className="bg-primary-gold text-white px-3 py-2 rounded-lg hover:bg-highlight transition"
+                disabled={isLoading}
+                className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-1.5 shrink-0 disabled:opacity-60"
               >
-                <FiSend size={16} />
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Subscribe
+                    <FiSend size={13} />
+                  </>
+                )}
               </button>
             </form>
-            {isSubscribed && (
-              <p className="text-xs text-green-600">
-                Subscribed successfully! 🎉
-              </p>
-            )}
           </div>
-        </div>
-
-        {/* Payment Methods */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-gray-500 text-center">
-              © {new Date().getFullYear()} Solid Bazzar. All rights reserved.
+          {isSubscribed && (
+            <p className="text-center text-white/90 text-sm font-semibold mt-2 animate-pulse">
+              🎉 You're subscribed! Check your inbox for exclusive deals.
             </p>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500">Secure Payments:</span>
-              <div className="flex gap-2">
-                <FaCcVisa size={24} className="text-gray-600" />
-                <FaCcMastercard size={24} className="text-gray-600" />
-                <FaCcAmex size={24} className="text-gray-600" />
-                <FaCcPaypal size={24} className="text-gray-600" />
+          )}
+        </div>
+      </div>
+
+      {/* ── Main Footer Grid ───────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+
+          {/* Col 1 — Brand ── */}
+          <div className="sm:col-span-2 lg:col-span-1 space-y-5">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              {/* <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-900/30 group-hover:scale-105 transition-transform">
+                <Image
+                  src="/images/logo.webp"
+                  alt="Abdullah Poshak Ghor"
+                  width={52}
+                  height={52}
+                  className="w-12 h-12 object-contain"
+                />
+              </div> */}
+              <div>
+                <span className="text-lg font-black text-white block leading-none">
+                  Abdullah {" "} <span className="text-orange-400">Poshak Ghor</span>
+                </span>
+                <span className="text-[10px] text-gray-500 font-medium tracking-widest uppercase">
+                 Poshak Ghor
+                </span>
+              </div>
+            </Link>
+
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Bangladesh's trusted destination for premium fashion, beauty &
+              lifestyle products at unbeatable prices. Fast delivery, genuine
+              products.
+            </p>
+
+            {/* Socials */}
+            <div className="flex gap-2">
+              {socials.map(({ icon: Icon, href, label, color }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={`w-9 h-9 bg-gray-800 ${color} border border-gray-700 hover:border-transparent rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200`}
+                >
+                  <Icon size={15} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Col 2 — Quick Links ── */}
+          <div className="space-y-5">
+            <h4 className="text-white font-bold text-sm tracking-wide uppercase">
+              Quick Links
+            </h4>
+            <ul className="space-y-2.5">
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="group flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors"
+                  >
+                    <FiArrowRight
+                      size={12}
+                      className="text-gray-600 group-hover:text-orange-400 transition-colors -translate-x-1 group-hover:translate-x-0 duration-200"
+                    />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 3 — Policies ── */}
+          <div className="space-y-5">
+            <h4 className="text-white font-bold text-sm tracking-wide uppercase">
+              Policies
+            </h4>
+            <ul className="space-y-2.5">
+              {policyLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="group flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors"
+                  >
+                    <FiArrowRight
+                      size={12}
+                      className="text-gray-600 group-hover:text-orange-400 transition-colors -translate-x-1 group-hover:translate-x-0 duration-200"
+                    />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Contact snippet */}
+            <div className="pt-2 space-y-2.5">
+              <h4 className="text-white font-bold text-sm tracking-wide uppercase">
+                Contact
+              </h4>
+              <a
+                href="tel:+8801797312699"
+                className="flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors"
+              >
+                <FiPhone size={13} className="text-orange-500 shrink-0" />
+                +880 1797 312699
+              </a>
+              <a
+                href="mailto:support@solidbazzar.com"
+                className="flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors"
+              >
+                <FiMail size={13} className="text-orange-500 shrink-0" />
+                support@solidbazzar.com
+              </a>
+              <div className="flex items-start gap-2 text-sm text-gray-400">
+                <FiMapPin size={13} className="text-orange-500 shrink-0 mt-0.5" />
+                <span>Gangni, Mollarhat, Bagerhat, Khulna-9384</span>
               </div>
             </div>
+          </div>
+
+          {/* Col 4 — App / Trust ── */}
+          <div className="space-y-5">
+            <h4 className="text-white font-bold text-sm tracking-wide uppercase">
+              Why Us
+            </h4>
+            <div className="space-y-3">
+              {[
+                { emoji: "🚀", text: "Fast delivery across Bangladesh" },
+                { emoji: "✅", text: "100% genuine products" },
+                { emoji: "🔄", text: "7-day easy returns" },
+                { emoji: "💳", text: "Cash on Delivery available" },
+                { emoji: "🔒", text: "Secure payment gateway" },
+              ].map(({ emoji, text }) => (
+                <div key={text} className="flex items-start gap-2.5 text-sm text-gray-400">
+                  <span className="shrink-0 text-base leading-none">{emoji}</span>
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Payment methods */}
+            <div>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">
+                Payment Methods
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["bKash", "Nagad", "Rocket", "Visa", "MasterCard"].map(
+                  (method) => (
+                    <span
+                      key={method}
+                      className="px-2.5 py-1 bg-gray-800 border border-gray-700 rounded-lg text-[11px] font-bold text-gray-300"
+                    >
+                      {method}
+                    </span>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Bottom Bar ─────────────────────────────────────────── */}
+      <div className="border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+            <p>
+              © {new Date().getFullYear()} Solid Bazzar. All rights reserved.
+            </p>
+            <p className="flex items-center gap-1">
+              Made with{" "}
+              <FiHeart size={11} className="text-orange-500 fill-orange-500" />{" "}
+              in Bangladesh
+            </p>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ export async function POST(request) {
     }
 
     const client = await clientPromise;
-    const db = client.db("SolidBazaar");
+    const db = client.db("demosolidbazar");
 
     // Find the order
     const order = await db.collection("orders").findOne({
