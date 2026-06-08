@@ -36,10 +36,10 @@ export default function ProductDashboard() {
   const [rating, setRating] = useState("5");
   const [image, setImage] = useState("");
   const [uploading, setUploading] = useState(false);
-  
+
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
-  
+
   // File Input Ref for Image Upload
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -95,7 +95,7 @@ export default function ProductDashboard() {
 
     try {
       let finalImageUrl = image;
-      
+
       if (image.startsWith('data:')) {
         const response = await fetch(image);
         const blob = await response.blob();
@@ -105,7 +105,7 @@ export default function ProductDashboard() {
 
       const finalPrice = parseFloat(price);
       const finalOriginalPrice = originalPrice ? parseFloat(originalPrice) : undefined;
-      const discount = finalOriginalPrice && finalOriginalPrice > finalPrice 
+      const discount = finalOriginalPrice && finalOriginalPrice > finalPrice
         ? calculateDiscount(finalPrice, finalOriginalPrice)
         : 0;
 
@@ -216,7 +216,7 @@ export default function ProductDashboard() {
   return (
     <div className="min-h-screen bg-[#0B0F19] text-slate-100 p-6 md:p-10 font-sans">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* ================= LEFT: FORM (ADD / UPDATE) ================= */}
         <div className="lg:col-span-1 bg-[#151D30] border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md h-fit">
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-white">
@@ -235,7 +235,7 @@ export default function ProductDashboard() {
             {/* Image Upload Area */}
             <div>
               <label className="block text-sm font-medium text-slate-400 mb-2">Product Image *</label>
-              <div 
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-[#0E1524] group relative overflow-hidden h-40"
               >
@@ -253,12 +253,12 @@ export default function ProductDashboard() {
                   </div>
                 )}
               </div>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageChange} 
-                accept="image/*" 
-                className="hidden" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
               />
             </div>
 
@@ -321,13 +321,30 @@ export default function ProductDashboard() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full bg-[#0E1524] border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-indigo-500 transition text-sm appearance-none"
                 >
-                  <option value="Electronics">Electronics</option>
-                  <option value="Clothing">Clothing</option>
-                  <option value="Accessories">Accessories</option>
-                  <option value="Home & Living">Home & Living</option>
-                  <option value="Beauty">Beauty</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Toys & Kids">Toys & Kids</option>
+                 
+                  <option value="Sharee">Sharee (শাড়ি)</option>
+                  <option value="Three Piece">Three Piece (থ্রি-পিস)</option>
+                  <option value="Kurti & Tops">Kurti & Tops (কুর্তি ও টপস)</option>
+                  <option value="Lehenga">Lehenga (লেহেঙ্গা)</option>
+                  <option value="Abaya & Hijab">Abaya & Hijab (আবায়া ও হিজাব)</option>
+                  <option value="Ladies Pants & Palazzos">Ladies Pants & Palazzos (প্যান্ট ও প্লাজো)</option>
+
+
+                  <option value="Panjabi & Pajama">Panjabi & Pajama (পাঞ্জাবি ও পায়জামা)</option>
+                  <option value="Shirts">Shirts (শার্ট)</option>
+                  <option value="T-Shirts & Polos">T-Shirts & Polos (টি-শার্ট ও পোলো)</option>
+                  <option value="Gents Pants">Gents Pants (ছেলেরা প্যান্ট - জিন্স/গ্যাবার্ডিন)</option>
+                  <option value="Lungi & Dhoti">Lungi & Dhoti (লুঙ্গি ও ধুতি)</option>
+                  <option value="Suits & Blazers">Suits & Blazers (স্যুট ও ব্লেজার)</option>
+
+
+                  <option value="Boys Kids Dress">Boys Kids Dress (বাবুদের পোশাক)</option>
+                  <option value="Girls Kids Dress">Girls Kids Dress (পরিদের পোশাক)</option>
+                  <option value="Newborn Baby Clothing">Newborn Baby Clothing (নবজাতকের পোশাক)</option>
+
+                  <option value="Winter Clothing">Winter Clothing (শীতের পোশাক - জ্যাকেট/সোয়েটার)</option>
+                  <option value="Fabrics & Unstitched">Fabrics & Unstitched (গজ কাপড় ও আনস্টিচড)</option>
+                  <option value="Innerwear & Nightwear">Innerwear & Nightwear (ইনারওয়্যার ও নাইটওয়্যার)</option>
                 </select>
               </div>
               <div>
@@ -378,11 +395,10 @@ export default function ProductDashboard() {
               <button
                 type="submit"
                 disabled={uploading}
-                className={`flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-lg transition duration-200 ${
-                  editingId 
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20" 
+                className={`flex-1 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-lg transition duration-200 ${editingId
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20"
                     : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
-                }`}
+                  }`}
               >
                 {uploading ? (
                   "Processing..."
@@ -396,7 +412,7 @@ export default function ProductDashboard() {
                   </>
                 )}
               </button>
-              
+
               {editingId && (
                 <button
                   type="button"
@@ -447,10 +463,10 @@ export default function ProductDashboard() {
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
                   {products.map((product) => {
-                    const discount = product.originalPrice && product.originalPrice > product.price 
+                    const discount = product.originalPrice && product.originalPrice > product.price
                       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
                       : 0;
-                    
+
                     return (
                       <tr key={product.id} className="group hover:bg-[#1E2943]/30 transition">
                         {/* Image & Title */}
