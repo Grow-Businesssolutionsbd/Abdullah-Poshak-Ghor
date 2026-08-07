@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, Trash2, Edit3, Image, X, Check, PackageOpen, Star, AlertCircle, Tag, Clock, TrendingUp, Flame } from "lucide-react";
+import { Plus, Trash2, Edit3, Image as ImageIcon, X, Check, PackageOpen, Star, AlertCircle, Clock, TrendingUp, Flame } from "lucide-react";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
 
 // Product Data Type Definition
@@ -21,6 +21,64 @@ interface Product {
   createdAt?: Date;
 }
 
+// 🔥 ইমেজ কম্প্রেস করার ফাংশন - FIXED VERSION
+const compressImage = (file: File, maxSizeMB: number = 1): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      // নেটিভ HTML Image Constructor ব্যবহার করুন (window.Image)
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // ম্যাক্সিমাম 1200px প্রস্থে রিসাইজ করুন
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // কোয়ালিটি 0.7 (70%) করে কম্প্রেস করুন
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              reject(new Error('Compression failed'));
+            }
+          },
+          'image/jpeg',
+          0.7
+        );
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function ProductDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +88,7 @@ export default function ProductDashboard() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
-  const [category, setCategory] = useState("Electronics");
+  const [category, setCategory] = useState("Sofa & Sectionals");
   const [stock, setStock] = useState("10");
   const [status, setStatus] = useState<Product['status']>("Active");
   const [rating, setRating] = useState("5");
@@ -66,15 +124,33 @@ export default function ProductDashboard() {
     fetchProducts();
   }, []);
 
-  // Handle Image Upload
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Image Upload with Compression
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // চেক করুন ফাইল সাইজ 10MB এর বেশি কিনা
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File is too large! It will be compressed automatically.");
+      }
+      
+      try {
+        // ইমেজ কম্প্রেস করুন
+        const compressedFile = await compressImage(file, 1);
+        console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(`Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+        
+        // কম্প্রেস করা ফাইলটি স্টোর করুন পরে আপলোডের জন্য
+        (window as any).compressedFile = compressedFile;
+      } catch (error) {
+        console.error("Compression error:", error);
+        alert("Failed to compress image. Please try a smaller image.");
+      }
     }
   };
 
@@ -97,10 +173,18 @@ export default function ProductDashboard() {
       let finalImageUrl = image;
 
       if (image.startsWith('data:')) {
-        const response = await fetch(image);
-        const blob = await response.blob();
-        const file = new File([blob], 'product-image.jpg', { type: blob.type });
-        finalImageUrl = await uploadImageToCloudinary(file);
+        // কম্প্রেস করা ফাইল ব্যবহার করুন
+        const fileToUpload = (window as any).compressedFile;
+        
+        if (fileToUpload) {
+          finalImageUrl = await uploadImageToCloudinary(fileToUpload);
+        } else {
+          // ব্যাকআপ: ডাটা URL থেকে ব্লব তৈরি করুন
+          const response = await fetch(image);
+          const blob = await response.blob();
+          const file = new File([blob], 'product-image.jpg', { type: 'image/jpeg' });
+          finalImageUrl = await uploadImageToCloudinary(file);
+        }
       }
 
       const finalPrice = parseFloat(price);
@@ -149,6 +233,7 @@ export default function ProductDashboard() {
       alert("Something went wrong, please try again.");
     } finally {
       setUploading(false);
+      (window as any).compressedFile = null;
     }
   };
 
@@ -187,12 +272,13 @@ export default function ProductDashboard() {
     setDescription("");
     setPrice("");
     setOriginalPrice("");
-    setCategory("Electronics");
+    setCategory("Sofa & Sectionals");
     setStock("10");
     setStatus("Active");
     setRating("5");
     setImage("");
     setEditingId(null);
+    (window as any).compressedFile = null;
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -243,13 +329,14 @@ export default function ProductDashboard() {
                   <>
                     <img src={image} alt="Preview" className="w-full h-full object-cover rounded-lg" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg">
-                      <Image className="w-6 h-6 text-white" />
+                      <ImageIcon className="w-6 h-6 text-white" />
                     </div>
                   </>
                 ) : (
                   <div className="text-center">
-                    <Image className="w-8 h-8 text-slate-500 mx-auto mb-2 group-hover:text-indigo-400 transition" />
+                    <ImageIcon className="w-8 h-8 text-slate-500 mx-auto mb-2 group-hover:text-indigo-400 transition" />
                     <span className="text-xs text-slate-400">Click to upload image</span>
+                    <p className="text-[10px] text-slate-500 mt-1">Max 10MB (Auto compressed)</p>
                   </div>
                 )}
               </div>
@@ -269,7 +356,7 @@ export default function ProductDashboard() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Mechanical Keyboard"
+                placeholder="e.g. Modern Sofa"
                 className="w-full bg-[#0E1524] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition text-sm"
                 required
               />
@@ -321,30 +408,19 @@ export default function ProductDashboard() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full bg-[#0E1524] border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-indigo-500 transition text-sm appearance-none"
                 >
-                 
-                  <option value="Sharee">Sharee (শাড়ি)</option>
-                  <option value="Three Piece">Three Piece (থ্রি-পিস)</option>
-                  <option value="Kurti & Tops">Kurti & Tops (কুর্তি ও টপস)</option>
-                  <option value="Lehenga">Lehenga (লেহেঙ্গা)</option>
-                  <option value="Abaya & Hijab">Abaya & Hijab (আবায়া ও হিজাব)</option>
-                  <option value="Ladies Pants & Palazzos">Ladies Pants & Palazzos (প্যান্ট ও প্লাজো)</option>
-
-
-                  <option value="Panjabi & Pajama">Panjabi & Pajama (পাঞ্জাবি ও পায়জামা)</option>
-                  <option value="Shirts">Shirts (শার্ট)</option>
-                  <option value="T-Shirts & Polos">T-Shirts & Polos (টি-শার্ট ও পোলো)</option>
-                  <option value="Gents Pants">Gents Pants (ছেলেরা প্যান্ট - জিন্স/গ্যাবার্ডিন)</option>
-                  <option value="Lungi & Dhoti">Lungi & Dhoti (লুঙ্গি ও ধুতি)</option>
-                  <option value="Suits & Blazers">Suits & Blazers (স্যুট ও ব্লেজার)</option>
-
-
-                  <option value="Boys Kids Dress">Boys Kids Dress (বাবুদের পোশাক)</option>
-                  <option value="Girls Kids Dress">Girls Kids Dress (পরিদের পোশাক)</option>
-                  <option value="Newborn Baby Clothing">Newborn Baby Clothing (নবজাতকের পোশাক)</option>
-
-                  <option value="Winter Clothing">Winter Clothing (শীতের পোশাক - জ্যাকেট/সোয়েটার)</option>
-                  <option value="Fabrics & Unstitched">Fabrics & Unstitched (গজ কাপড় ও আনস্টিচড)</option>
-                  <option value="Innerwear & Nightwear">Innerwear & Nightwear (ইনারওয়্যার ও নাইটওয়্যার)</option>
+                  <option value="Sofa & Sectionals">Sofa & Sectionals (সোফা ও সেকশনাল)</option>
+                  <option value="Center & Coffee Tables">Center & Coffee Tables (সেন্টার ও কফি টেবিল)</option>
+                  <option value="TV Units & Media Centers">TV Units & Media Centers (টিভি ইউনিট ও মিডিয়া সেন্টার)</option>
+                  <option value="Accent Chairs & Ottomans">Accent Chairs & Ottomans (এক্সেন্ট চেয়ার ও অটোম্যান)</option>
+                  <option value="Recliner & Rocking Chairs">Recliner & Rocking Chairs (রেকলাইনার ও রকিং চেয়ার)</option>
+                  <option value="Wall Shelves & Floating Shelves">Wall Shelves & Floating Shelves (ওয়াল শেল্ভ ও ফ্লোটিং শেল্ভ)</option>
+                  <option value="Dining Tables & Chairs">Dining Tables & Chairs (ডাইনিং টেবিল ও চেয়ার)</option>
+                  <option value="Beds & Headboards">Beds & Headboards (বেড ও হেডবোর্ড)</option>
+                  <option value="Wardrobes & Almirah">Wardrobes & Almirah (ওয়ার্ডরোব ও আলমারি)</option>
+                  <option value="Office Chairs">Office Chairs (অফিস চেয়ার)</option>
+                  <option value="Study & Computer Desks">Study & Computer Desks (স্টাডি ও কম্পিউটার ডেস্ক)</option>
+                  <option value="Outdoor & Garden Furniture">Outdoor & Garden Furniture (আউটডোর ও গার্ডেন ফার্নিচার)</option>
+                  <option value="Mattresses & Protectors">Mattresses & Protectors (ম্যাট্রেস ও প্রোটেক্টর)</option>
                 </select>
               </div>
               <div>
@@ -469,7 +545,6 @@ export default function ProductDashboard() {
 
                     return (
                       <tr key={product.id} className="group hover:bg-[#1E2943]/30 transition">
-                        {/* Image & Title */}
                         <td className="py-4 pl-2">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl overflow-hidden bg-[#0E1524] border border-slate-700 flex-shrink-0">
@@ -491,15 +566,11 @@ export default function ProductDashboard() {
                             </div>
                           </div>
                         </td>
-
-                        {/* Category */}
                         <td className="py-4">
                           <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">
                             {product.category}
                           </span>
                         </td>
-
-                        {/* Price */}
                         <td className="py-4">
                           <div className="flex flex-col">
                             <span className="text-sm font-semibold text-emerald-400 font-mono">
@@ -517,20 +588,14 @@ export default function ProductDashboard() {
                             )}
                           </div>
                         </td>
-
-                        {/* Stock */}
                         <td className="py-4">
                           <span className={`text-xs font-medium ${product.stock > 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock'}
                           </span>
                         </td>
-
-                        {/* Status */}
                         <td className="py-4">
                           <StatusBadge status={product.status} />
                         </td>
-
-                        {/* Actions */}
                         <td className="py-4 text-right pr-2">
                           <div className="flex items-center justify-end gap-2">
                             <button

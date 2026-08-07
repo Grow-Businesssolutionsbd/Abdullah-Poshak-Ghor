@@ -8,19 +8,19 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const mainSlides = [
-  { id: 1, image: "/images/1 (1).webp", alt: "Fashion Collection" },
-  { id: 2, image: "/images/1 (2).webp", alt: "New Season" },
-  { id: 3, image: "/images/1 (3).webp", alt: "Hot Deals" },
+  { id: 1, image: "/images/side.jpg", alt: "Fashion Collection" },
+  { id: 2, image: "/images/side2.jpg", alt: "New Season" },
+  { id: 3, image: "/images/side2.jpg", alt: "Hot Deals" },
 ];
 
 const sideImages = [
   {
     id: 1,
-    image: "/images/1 (4).webp",
+    image: "/images/suchit-poojari-ljRiZl00n18-unsplash.jpg",
     alt: "Accessories",
     label: "New Arrivals",
   },
-  { id: 2, image: "/images/1 (5).webp", alt: "Footwear", label: "Hot Deals" },
+  { id: 2, image: "/images/katja-rooke-77JACslA8G0-unsplash.jpg", alt: "Footwear", label: "Hot Deals" },
 ];
 
 const categoryPills = [

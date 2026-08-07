@@ -13,6 +13,11 @@ import {
   FiSend,
   FiArrowRight,
   FiHeart,
+  FiTruck,
+  FiCheckCircle,
+  FiRefreshCw,
+  FiDollarSign,
+  FiShield,
 } from "react-icons/fi";
 import { useState } from "react";
 
@@ -263,14 +268,14 @@ export default function Footer() {
             </h4>
             <div className="space-y-3">
               {[
-                { emoji: "🚀", text: "Fast delivery across Bangladesh" },
-                { emoji: "✅", text: "100% genuine products" },
-                { emoji: "🔄", text: "7-day easy returns" },
-                { emoji: "💳", text: "Cash on Delivery available" },
-                { emoji: "🔒", text: "Secure payment gateway" },
-              ].map(({ emoji, text }) => (
+                { icon: FiTruck, text: "Fast delivery across Bangladesh" },
+                { icon: FiCheckCircle, text: "100% genuine products" },
+                { icon: FiRefreshCw, text: "7-day easy returns" },
+                { icon: FiDollarSign, text: "Cash on Delivery available" },
+                { icon: FiShield, text: "Secure payment gateway" },
+              ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-2.5 text-sm text-gray-400">
-                  <span className="shrink-0 text-base leading-none">{emoji}</span>
+                  <Icon size={16} className="shrink-0 text-orange-400 mt-0.5" />
                   <span>{text}</span>
                 </div>
               ))}

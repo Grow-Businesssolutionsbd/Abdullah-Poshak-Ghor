@@ -265,20 +265,20 @@ export default function Navbar() {
             {/* ── Logo ── */}
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <div className="relative">
-                <Image
+                {/* <Image
                   src="/images/logo.webp"
                   alt="Solid Bazzar"
                   width={56}
                   height={56}
                   className="w-12 h-12 md:w-14 md:h-14 object-contain transition-transform group-hover:scale-105"
                   priority
-                />
+                /> */}
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-base md:text-lg font-black text-gray-900 leading-none tracking-tight">
-                  Abdullah {" "}
+                  demo {" "}
                   <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                    Poshak Ghor
+                    logo
                   </span>
                 </h1>
                 <p className="text-[9px] text-gray-400 font-medium tracking-widest uppercase leading-none mt-0.5">
